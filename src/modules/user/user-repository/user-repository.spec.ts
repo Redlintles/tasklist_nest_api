@@ -73,12 +73,12 @@ describe("UserRepository", () => {
 
     it("should find a user successfully", async () => {
       jest
-        .spyOn(repository, "findOneBy")
+        .spyOn(repository, "findOneByOrFail")
         .mockReturnValue(new Promise((resolve) => resolve(mockedUser)));
 
       const user = await userRepository.findUserById(1);
 
-      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
       expect(user).toEqual(mockedUser);
     });
   });
