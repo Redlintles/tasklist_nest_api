@@ -12,4 +12,13 @@ export class UserService {
 
     return user;
   }
+
+  async findOneById(id: number): Promise<User> {
+    if (typeof id === "number" && !isNaN(id) && id > 0) {
+      const user = await this.userRepository.findUserById(id);
+      return user;
+    }
+
+    throw new Error("Invalid Id, it must be a positive integer!");
+  }
 }

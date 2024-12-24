@@ -29,6 +29,7 @@ describe("UserService", () => {
           provide: UserRepository,
           useValue: {
             createUser: jest.fn().mockResolvedValue(user),
+            findUserById: jest.fn().mockResolvedValue(user),
           },
         },
       ],
@@ -48,6 +49,24 @@ describe("UserService", () => {
     it("should create a user successfully", async () => {
       const savedUser = await service.createUser(userDTO);
       expect(savedUser).toStrictEqual(user);
+    });
+  });
+
+  describe("findOneById", () => {
+    it("should be defined", () => {
+      expect(service).toHaveProperty("findOneById");
+    });
+
+    it("should return a user successfully", async () => {
+      const foundUser = await service.findOneById(1);
+
+      expect(foundUser).toEqual(user);
+    });
+
+    it("Should throw an error for a invalid id", () => {
+      expect(service.findOneById(-1)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
     });
   });
 });
