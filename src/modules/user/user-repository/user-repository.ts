@@ -16,4 +16,9 @@ export class UserRepository {
     await this.userRepository.save(user);
     return user;
   }
+
+  async findUserById(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    return user;
+  }
 }

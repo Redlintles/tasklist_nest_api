@@ -16,6 +16,14 @@ describe("UserRepository", () => {
     phone_number: "12345678910",
   };
 
+  const mockedUser: User = {
+    id: 1,
+    username: "John Doe",
+    email: "Banana@gmail.com",
+    password: "Banana@123",
+    phone_number: "12345678910",
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,6 +45,9 @@ describe("UserRepository", () => {
   });
 
   describe("createUser", () => {
+    it("should be defined", () => {
+      expect(userRepository).toHaveProperty("createUser");
+    });
     it("Should create and save a user", async () => {
       const mockUser = new User();
       mockUser.username = mockUserDto.username;
@@ -52,6 +63,23 @@ describe("UserRepository", () => {
       expect(result).toEqual(mockUser);
       expect(repository.create).toHaveBeenCalledWith(mockUserDto);
       expect(repository.save).toHaveBeenCalledWith(mockUserDto);
+    });
+  });
+
+  describe("findUserById", () => {
+    it("should be defined", () => {
+      expect(userRepository).toHaveProperty("findUserById");
+    });
+
+    it("should find a user successfully", async () => {
+      jest
+        .spyOn(repository, "findOneBy")
+        .mockReturnValue(new Promise((resolve) => resolve(mockedUser)));
+
+      const user = await userRepository.findUserById(1);
+
+      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(user).toEqual(mockedUser);
     });
   });
 });
