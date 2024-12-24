@@ -26,6 +26,7 @@ describe("UserController", () => {
 
   const mockUserRepository = {
     createUser: jest.fn().mockResolvedValue(user),
+    findUserById: jest.fn().mockResolvedValue(user),
   };
 
   beforeEach(async () => {
@@ -51,9 +52,26 @@ describe("UserController", () => {
 
     it("should return a createdUser successfully", async () => {
       const res: StandardResponse = await controller.createUser(userDto);
+
+      expect(mockUserRepository.createUser).toHaveBeenCalledWith(userDto);
       expect(res.error).toBeFalsy();
       expect(res.data).toStrictEqual({ user: user });
       expect(res.message).toEqual("Usuário criado com sucesso!");
+      expect(res.timestamp).toBeDefined();
+    });
+  });
+
+  describe("findUserById", () => {
+    it("should be defined", () => {
+      expect(controller).toHaveProperty("findUserById");
+    });
+    it("should return a valid response", async () => {
+      const res: StandardResponse = await controller.findUserById(1);
+
+      expect(mockUserRepository.findUserById).toHaveBeenCalledWith(1);
+      expect(res.error).toBeFalsy();
+      expect(res.data).toStrictEqual({ user: user });
+      expect(res.message).toEqual("Usuário encontrado com sucesso!");
       expect(res.timestamp).toBeDefined();
     });
   });

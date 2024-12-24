@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserDto } from "./dtos/user-dto/user-dto";
 import { StandardResponse } from "../../utils/standard-response/standard-response";
@@ -10,5 +10,12 @@ export class UserController {
   async createUser(@Body() userDTO: UserDto): Promise<StandardResponse> {
     const user = await this.userService.createUser(userDTO);
     return new StandardResponse({ user: user }, "Usuário criado com sucesso!");
+  }
+
+  @Get("/:id")
+  async findUserById(@Param("id") id: number): Promise<StandardResponse> {
+    const user = await this.userService.findOneById(id);
+
+    return new StandardResponse({ user }, "Usuário encontrado com sucesso!");
   }
 }
