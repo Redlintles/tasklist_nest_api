@@ -67,6 +67,9 @@ describe("UserService", () => {
       expect(service.findOneById(-1)).rejects.toThrow(
         "Invalid Id, it must be a positive integer!",
       );
+      expect(service.findOneById(NaN)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
     });
   });
 });
