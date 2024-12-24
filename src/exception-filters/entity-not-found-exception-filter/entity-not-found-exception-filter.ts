@@ -1,4 +1,5 @@
-import { ArgumentsHost, ExceptionFilter } from "@nestjs/common";
+import { ArgumentsHost, ExceptionFilter, HttpStatus } from "@nestjs/common";
+import { StandardErrorResponse } from "src/utils/standard-error-response/standard-error-response";
 import { EntityNotFoundError } from "typeorm";
 
 export class EntityNotFoundExceptionFilter implements ExceptionFilter {
@@ -6,10 +7,14 @@ export class EntityNotFoundExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
 
-    return response.status(404).json({
-      statusCode: 404,
-      message: "Entity not found",
-      error: exception.message,
-    });
+    const error = new StandardErrorResponse(
+      HttpStatus.NOT_FOUND,
+      "Entity not found!",
+      exception.message,
+    );
+
+    console.log(error);
+
+    return response.status(HttpStatus.NOT_FOUND).json(error.toClient());
   }
 }
