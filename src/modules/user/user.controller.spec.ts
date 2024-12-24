@@ -26,7 +26,9 @@ describe("UserController", () => {
 
   const mockUserRepository = {
     createUser: jest.fn().mockResolvedValue(user),
-    findUserById: jest.fn().mockResolvedValue(user),
+    findUserById: jest.fn().mockImplementation((id: number) => {
+      return id === 1 ? user : null;
+    }),
   };
 
   beforeEach(async () => {
@@ -72,6 +74,16 @@ describe("UserController", () => {
       expect(res.error).toBeFalsy();
       expect(res.data).toStrictEqual({ user: user });
       expect(res.message).toEqual("Usuário encontrado com sucesso!");
+      expect(res.timestamp).toBeDefined();
+    });
+
+    it("should return an error if the user is not found", async () => {
+      const res: StandardResponse = await controller.findUserById(10000000000);
+
+      expect(mockUserRepository.findUserById).toHaveBeenCalledWith(10000000000);
+      expect(res.error).toBeTruthy();
+      expect(res.data).toStrictEqual({});
+      expect(res.message).toEqual("Usuário não encontrado!");
       expect(res.timestamp).toBeDefined();
     });
   });

@@ -15,7 +15,10 @@ export class UserController {
   @Get("/:id")
   async findUserById(@Param("id") id: number): Promise<StandardResponse> {
     const user = await this.userService.findOneById(id);
-
-    return new StandardResponse({ user }, "Usuário encontrado com sucesso!");
+    if (user) {
+      return new StandardResponse({ user }, "Usuário encontrado com sucesso!");
+    } else {
+      return new StandardResponse({}, "Usuário não encontrado!", true);
+    }
   }
 }
