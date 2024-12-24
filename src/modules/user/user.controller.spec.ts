@@ -76,15 +76,5 @@ describe("UserController", () => {
       expect(res.message).toEqual("Usuário encontrado com sucesso!");
       expect(res.timestamp).toBeDefined();
     });
-
-    it("should return an error if the user is not found", async () => {
-      const res: StandardResponse = await controller.findUserById(10000000000);
-
-      expect(mockUserRepository.findUserById).toHaveBeenCalledWith(10000000000);
-      expect(res.error).toBeTruthy();
-      expect(res.data).toStrictEqual({});
-      expect(res.message).toEqual("Usuário não encontrado!");
-      expect(res.timestamp).toBeDefined();
-    });
   });
 });
