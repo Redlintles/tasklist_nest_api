@@ -32,4 +32,30 @@ export class UserRepository {
       throw new HttpException("EntityNotFound", HttpStatus.NOT_FOUND);
     }
   }
+
+  async deleteUserById(id: number) {
+    let user: User;
+    try {
+      user = await this.userRepository.findOneByOrFail({ id });
+    } catch {
+      throw new HttpException("EntityNotFound", HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      await this.userRepository.delete({ id });
+
+      const exists = await this.userRepository.existsBy({ id });
+
+      if (!exists) {
+        throw new Error("Entity Could not be deleted");
+      } else {
+        return user;
+      }
+    } catch {
+      throw new HttpException(
+        "An unexpected error ocurred, try again later",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

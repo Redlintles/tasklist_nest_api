@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { DeleteResult, Repository } from "typeorm";
 import { UserRepository } from "./user-repository";
 import { User } from "../entities/user/user";
 import { UserDto } from "../dtos/user-dto/user-dto";
@@ -100,6 +100,47 @@ describe("UserRepository", () => {
 
       await expect(userRepository.findUserById(10000)).rejects.toThrow(
         new HttpException("EntityNotFound", HttpStatus.NOT_FOUND),
+      );
+    });
+  });
+  describe("deleteUserById", () => {
+    it("should be defined", () => {
+      expect(userRepository).toHaveProperty("deleteUserById");
+    });
+
+    it("should delete a user successfully", async () => {
+      jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "delete").mockResolvedValue(new DeleteResult());
+      jest.spyOn(repository, "existsBy").mockResolvedValue(true);
+      const user = await userRepository.deleteUserById(1);
+
+      expect(repository.delete).toHaveBeenCalled();
+
+      expect(user).toBeDefined();
+    });
+
+    it("should throw an error if it could not find the user to be deleted", async () => {
+      jest
+        .spyOn(repository, "findOneByOrFail")
+        .mockRejectedValue(new Error("NOT FOUND"));
+
+      await expect(userRepository.deleteUserById(1000)).rejects.toThrow(
+        new HttpException("EntityNotFound", HttpStatus.NOT_FOUND),
+      );
+    });
+
+    it("should throw an error if it could not delete the user", async () => {
+      jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
+      jest
+        .spyOn(repository, "delete")
+        .mockRejectedValue(new Error("could not delete"));
+      jest.spyOn(repository, "existsBy").mockResolvedValue(true);
+
+      await expect(userRepository.deleteUserById(1)).rejects.toThrow(
+        new HttpException(
+          "An unexpected error ocurred, try again later",
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
       );
     });
   });
