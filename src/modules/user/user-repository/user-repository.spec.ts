@@ -4,6 +4,7 @@ import { User } from "../entities/user/user";
 import { UserDto } from "../dtos/user-dto/user-dto";
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
+import { HttpException, HttpStatus } from "@nestjs/common";
 
 describe("UserRepository", () => {
   let userRepository: UserRepository;
@@ -64,6 +65,16 @@ describe("UserRepository", () => {
       expect(repository.create).toHaveBeenCalledWith(mockUserDto);
       expect(repository.save).toHaveBeenCalledWith(mockUserDto);
     });
+    it("should throw an error if the user could not be created due to unique key constraint violation", async () => {
+      jest.spyOn(repository, "save").mockRejectedValue(new Error("Conflict"));
+
+      await expect(userRepository.createUser(mockUserDto)).rejects.toThrow(
+        new HttpException(
+          "Unique key constraint violation",
+          HttpStatus.CONFLICT,
+        ),
+      );
+    });
   });
 
   describe("findUserById", () => {
@@ -80,6 +91,16 @@ describe("UserRepository", () => {
 
       expect(repository.findOneByOrFail).toHaveBeenCalledWith({ id: 1 });
       expect(user).toEqual(mockedUser);
+    });
+
+    it("should throw an error if it could not find the user", async () => {
+      jest
+        .spyOn(repository, "findOneByOrFail")
+        .mockRejectedValue(new Error("Not found"));
+
+      await expect(userRepository.findUserById(10000)).rejects.toThrow(
+        new HttpException("EntityNotFound", HttpStatus.NOT_FOUND),
+      );
     });
   });
 });
