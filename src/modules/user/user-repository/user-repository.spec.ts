@@ -114,7 +114,7 @@ describe("UserRepository", () => {
     it("should delete a user successfully", async () => {
       jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
       jest.spyOn(repository, "delete").mockResolvedValue(new DeleteResult());
-      jest.spyOn(repository, "existsBy").mockResolvedValue(true);
+      jest.spyOn(repository, "existsBy").mockResolvedValue(false);
       const user = await userRepository.deleteUserById(1);
 
       expect(repository.delete).toHaveBeenCalled();

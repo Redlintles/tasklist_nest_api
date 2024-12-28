@@ -46,7 +46,7 @@ export class UserRepository {
 
       const exists = await this.userRepository.existsBy({ id });
 
-      if (!exists) {
+      if (exists) {
         throw new Error("Entity Could not be deleted");
       } else {
         return user;
