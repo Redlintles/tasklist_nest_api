@@ -1,6 +1,6 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../entities/user/user";
-import { Repository } from "typeorm";
+import { Repository, UpdateResult } from "typeorm";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserDto } from "../dtos/user-dto/user-dto";
 
@@ -50,6 +50,37 @@ export class UserRepository {
         throw new Error("Entity Could not be deleted");
       } else {
         return user;
+      }
+    } catch {
+      throw new HttpException(
+        "An unexpected error ocurred, try again later",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async updateUserById(id: number, userData: Partial<User>) {
+    let user: User;
+    try {
+      user = await this.userRepository.findOneByOrFail({ id });
+    } catch {
+      throw new HttpException("EntityNotFound", HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const result: UpdateResult = await this.userRepository.update(
+        { id },
+        userData,
+      );
+
+      if (result.affected && result.affected > 0) {
+        const updatedUser: User = await this.userRepository.findOneBy({ id });
+        return {
+          old: user,
+          new: updatedUser,
+        };
+      } else {
+        throw new Error("Entity Could not be updated");
       }
     } catch {
       throw new HttpException(

@@ -1,4 +1,4 @@
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import { UserRepository } from "./user-repository";
 import { User } from "../entities/user/user";
 import { UserDto } from "../dtos/user-dto/user-dto";
@@ -23,6 +23,9 @@ describe("UserRepository", () => {
     email: "Banana@gmail.com",
     password: "Banana@123",
     phone_number: "12345678910",
+  };
+  const mockedPartialUser: Partial<User> = {
+    username: "Jane Doe",
   };
 
   beforeEach(async () => {
@@ -137,6 +140,56 @@ describe("UserRepository", () => {
       jest.spyOn(repository, "existsBy").mockResolvedValue(true);
 
       await expect(userRepository.deleteUserById(1)).rejects.toThrow(
+        new HttpException(
+          "An unexpected error ocurred, try again later",
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
+      );
+    });
+  });
+
+  describe("updateUserById", () => {
+    it("should be defined", () => {
+      expect(userRepository).toHaveProperty("updateUserById");
+    });
+
+    it("should update a user successfully", async () => {
+      const updateResultObj = new UpdateResult();
+      updateResultObj.affected = 1;
+      jest.spyOn(repository, "findOneBy").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "update").mockResolvedValue(updateResultObj);
+
+      const result = await userRepository.updateUserById(1, mockedPartialUser);
+
+      expect(repository.update).toHaveBeenCalledWith(
+        { id: 1 },
+        mockedPartialUser,
+      );
+
+      expect(result).toStrictEqual({
+        old: mockedUser,
+        new: Object.assign(mockedUser, mockedPartialUser),
+      });
+    });
+    it("should throw an error if it could not find the user to be updated", async () => {
+      jest
+        .spyOn(repository, "findOneByOrFail")
+        .mockRejectedValue(new Error("Entity not found!"));
+
+      await expect(
+        userRepository.updateUserById(1000, mockedPartialUser),
+      ).rejects.toThrow(
+        new HttpException("EntityNotFound", HttpStatus.NOT_FOUND),
+      );
+    });
+    it("should throw an error if the update fails", async () => {
+      jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "update").mockRejectedValue(new Error("Error"));
+
+      await expect(
+        userRepository.updateUserById(1, mockedPartialUser),
+      ).rejects.toThrow(
         new HttpException(
           "An unexpected error ocurred, try again later",
           HttpStatus.INTERNAL_SERVER_ERROR,
