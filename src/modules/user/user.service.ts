@@ -21,4 +21,12 @@ export class UserService {
 
     throw new Error("Invalid Id, it must be a positive integer!");
   }
+
+  async updateUser(id: number, partialUser: Partial<User>) {
+    return await this.userRepository.updateUserById(id, partialUser);
+  }
+
+  async deleteUser(id: number) {
+    return await this.userRepository.deleteUserById(id);
+  }
 }

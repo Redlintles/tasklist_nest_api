@@ -6,6 +6,7 @@ import { UserDto } from "./dtos/user-dto/user-dto";
 
 describe("UserService", () => {
   let service: UserService;
+  let userRepository: UserRepository;
 
   const user: User = {
     id: 1,
@@ -13,6 +14,9 @@ describe("UserService", () => {
     email: "Banana@gmail.com",
     password: "Banana@123",
     phone_number: "12345678910",
+  };
+  const partialUser: Partial<User> = {
+    username: "Jane doe",
   };
   const userDTO: UserDto = {
     username: "BananaBananab",
@@ -30,12 +34,15 @@ describe("UserService", () => {
           useValue: {
             createUser: jest.fn().mockResolvedValue(user),
             findUserById: jest.fn().mockResolvedValue(user),
+            deleteUserById: jest.fn().mockResolvedValue(user),
+            updateUserById: jest.fn().mockResolvedValue(user),
           },
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
+    userRepository = module.get<UserRepository>(UserRepository);
   });
 
   it("should be defined", () => {
@@ -70,6 +77,34 @@ describe("UserService", () => {
       expect(service.findOneById(NaN)).rejects.toThrow(
         "Invalid Id, it must be a positive integer!",
       );
+    });
+  });
+  describe("updateUser", () => {
+    it("should be defined", () => {
+      expect(service).toHaveProperty("updateUser");
+    });
+    it("should update a user successfully", async () => {
+      const updatedUser = await service.updateUser(1, partialUser);
+
+      expect(userRepository.updateUserById).toHaveBeenCalledWith(
+        1,
+        partialUser,
+      );
+
+      expect(updatedUser).toStrictEqual(Object.assign(user, partialUser));
+    });
+  });
+
+  describe("deleteUser", () => {
+    it("should be defined", () => {
+      expect(service).toHaveProperty("deleteUser");
+    });
+    it("should delete a user successfully", async () => {
+      const deletedUser = await service.deleteUser(1);
+
+      expect(userRepository.deleteUserById).toHaveBeenCalledWith(1);
+
+      expect(deletedUser).toEqual(user);
     });
   });
 });
