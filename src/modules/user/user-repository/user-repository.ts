@@ -73,13 +73,23 @@ export class UserRepository {
         userData,
       );
 
-      if (result.affected && result.affected > 0) {
+      if (typeof result.affected !== "undefined" && result.affected === 0) {
+        console.log("HERE");
+        return {
+          old: user,
+          new: user,
+        };
+      } else if (
+        typeof result.affected !== "undefined" &&
+        result.affected > 0
+      ) {
         const updatedUser: User = await this.userRepository.findOneBy({ id });
         return {
           old: user,
           new: updatedUser,
         };
       } else {
+        console.log(result);
         throw new Error("Entity Could not be updated");
       }
     } catch {

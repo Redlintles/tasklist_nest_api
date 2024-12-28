@@ -172,6 +172,26 @@ describe("UserRepository", () => {
         new: Object.assign(mockedUser, mockedPartialUser),
       });
     });
+
+    it("should not throw an error if the user object and the partial update object are identical", async () => {
+      const updateResultObj = new UpdateResult();
+      updateResultObj.affected = 0;
+      jest.spyOn(repository, "findOneBy").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "findOneByOrFail").mockResolvedValue(mockedUser);
+      jest.spyOn(repository, "update").mockResolvedValue(updateResultObj);
+
+      const result = await userRepository.updateUserById(1, mockedPartialUser);
+
+      expect(repository.update).toHaveBeenCalledWith(
+        { id: 1 },
+        mockedPartialUser,
+      );
+
+      expect(result).toStrictEqual({
+        old: mockedUser,
+        new: Object.assign(mockedUser, mockedPartialUser),
+      });
+    });
     it("should throw an error if it could not find the user to be updated", async () => {
       jest
         .spyOn(repository, "findOneByOrFail")
