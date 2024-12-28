@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { UserRepository } from "./user-repository/user-repository";
 import { User } from "./entities/user/user";
 import { UserDto } from "./dtos/user-dto/user-dto";
@@ -19,14 +19,29 @@ export class UserService {
       return user;
     }
 
-    throw new Error("Invalid Id, it must be a positive integer!");
+    throw new HttpException(
+      "Invalid Id, it must be a positive integer!",
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
 
   async updateUser(id: number, partialUser: Partial<User>) {
-    return await this.userRepository.updateUserById(id, partialUser);
+    if (typeof id === "number" && !isNaN(id) && id > 0) {
+      return await this.userRepository.updateUserById(id, partialUser);
+    }
+    throw new HttpException(
+      "Invalid Id, it must be a positive integer!",
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
 
   async deleteUser(id: number) {
-    return await this.userRepository.deleteUserById(id);
+    if (typeof id === "number" && !isNaN(id) && id > 0) {
+      return await this.userRepository.deleteUserById(id);
+    }
+    throw new HttpException(
+      "Invalid Id, it must be a positive integer!",
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   }
 }

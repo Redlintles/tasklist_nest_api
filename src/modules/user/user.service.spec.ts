@@ -70,11 +70,11 @@ describe("UserService", () => {
       expect(foundUser).toEqual(user);
     });
 
-    it("Should throw an error for a invalid id", () => {
-      expect(service.findOneById(-1)).rejects.toThrow(
+    it("Should throw an error for a invalid id", async () => {
+      await expect(service.findOneById(-1)).rejects.toThrow(
         "Invalid Id, it must be a positive integer!",
       );
-      expect(service.findOneById(NaN)).rejects.toThrow(
+      await expect(service.findOneById(NaN)).rejects.toThrow(
         "Invalid Id, it must be a positive integer!",
       );
     });
@@ -93,6 +93,15 @@ describe("UserService", () => {
 
       expect(updatedUser).toStrictEqual(Object.assign(user, partialUser));
     });
+
+    it("should throw an error for an invalid id", async () => {
+      await expect(service.updateUser(-1, partialUser)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
+      await expect(service.updateUser(NaN, partialUser)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
+    });
   });
 
   describe("deleteUser", () => {
@@ -105,6 +114,14 @@ describe("UserService", () => {
       expect(userRepository.deleteUserById).toHaveBeenCalledWith(1);
 
       expect(deletedUser).toEqual(user);
+    });
+    it("should throw an error for an invalid id", async () => {
+      await expect(service.deleteUser(-1)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
+      await expect(service.deleteUser(NaN)).rejects.toThrow(
+        "Invalid Id, it must be a positive integer!",
+      );
     });
   });
 });
