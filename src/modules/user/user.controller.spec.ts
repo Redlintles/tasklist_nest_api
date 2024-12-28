@@ -8,6 +8,7 @@ import { User } from "./entities/user/user";
 
 describe("UserController", () => {
   let controller: UserController;
+  let userService: UserService;
 
   const userDto: UserDto = {
     username: "BananaBananab",
@@ -23,12 +24,19 @@ describe("UserController", () => {
     password: "Banana@123",
     phone_number: "12345678910",
   };
+  const partialUser: Partial<User> = {
+    username: "BananaBananab",
+  };
 
   const mockUserRepository = {
     createUser: jest.fn().mockResolvedValue(user),
     findUserById: jest.fn().mockImplementation((id: number) => {
       return id === 1 ? user : null;
     }),
+    deleteUserById: jest.fn().mockResolvedValue(user),
+    updateUserById: jest
+      .fn()
+      .mockResolvedValue({ old: user, new: Object.assign(user, partialUser) }),
   };
 
   beforeEach(async () => {
@@ -41,6 +49,7 @@ describe("UserController", () => {
     }).compile();
 
     controller = module.get<UserController>(UserController);
+    userService = module.get<UserService>(UserService);
   });
 
   it("should be defined", () => {
@@ -74,6 +83,49 @@ describe("UserController", () => {
       expect(res.error).toBeFalsy();
       expect(res.data).toStrictEqual({ user: user });
       expect(res.message).toEqual("Usuário encontrado com sucesso!");
+      expect(res.timestamp).toBeDefined();
+    });
+  });
+
+  describe("updateUser", () => {
+    it("should be defined", () => {
+      expect(controller).toHaveProperty("updateUser");
+    });
+
+    it("should update a user successfully", async () => {
+      const res: StandardResponse = await controller.updateUser(1, partialUser);
+
+      jest.spyOn(userService, "updateUser").mockResolvedValue({
+        old: user,
+        new: Object.assign(user, partialUser),
+      });
+      expect(mockUserRepository.updateUserById).toHaveBeenCalledWith(
+        1,
+        partialUser,
+      );
+
+      expect(res.error).toBeFalsy();
+      expect(res.message).toEqual("Usuário atualizado com sucesso!");
+      expect(res.data).toEqual({
+        old: user,
+        new: Object.assign(user, partialUser),
+      });
+      expect(res.timestamp).toBeDefined();
+    });
+  });
+  describe("deleteUser", () => {
+    it("should be defined", () => {
+      expect(controller).toHaveProperty("deleteUser");
+    });
+
+    it("should delete a user successfully", async () => {
+      const res: StandardResponse = await controller.deleteUser(1);
+
+      expect(mockUserRepository.deleteUserById).toHaveBeenCalledWith(1);
+
+      expect(res.data).toStrictEqual({ user: user });
+      expect(res.message).toEqual("Usuário deletado com sucesso!");
+      expect(res.error).toBeFalsy();
       expect(res.timestamp).toBeDefined();
     });
   });
