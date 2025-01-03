@@ -2,9 +2,10 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { UserRepository } from "./user-repository/user-repository";
-import { StandardResponse } from "src/utils/standard-response/standard-response";
+import { StandardResponse } from "src/modules/utils/standard-response/standard-response";
 import { UserDto } from "./dtos/user-dto/user-dto";
 import { User } from "./entities/user/user";
+import { UtilsModule } from "../utils/utils.module";
 
 describe("UserController", () => {
   let controller: UserController;
@@ -41,6 +42,7 @@ describe("UserController", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [UtilsModule],
       controllers: [UserController],
       providers: [
         UserService,

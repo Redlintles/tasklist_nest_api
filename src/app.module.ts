@@ -5,6 +5,9 @@ import { UserModule } from "./modules/user/user.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_PIPE } from "@nestjs/core";
+import { AuthController } from "./modules/auth/auth.controller";
+import { UtilsModule } from "./modules/utils/utils.module";
+import { AuthModule } from "./modules/auth/auth.module";
 import * as path from "path";
 
 const entitiesPath = path.resolve(__dirname, "modules/**/*.entity{.ts, .js}");
@@ -32,8 +35,10 @@ console.log("\n\n", entitiesPath, "\n\n");
 
       inject: [ConfigService],
     }),
+    UtilsModule,
+    AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [
     AppService,
     {

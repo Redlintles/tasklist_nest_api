@@ -9,28 +9,41 @@ import {
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserDto } from "./dtos/user-dto/user-dto";
-import { StandardResponse } from "../../utils/standard-response/standard-response";
+import { StandardResponse } from "../utils/standard-response/standard-response";
+import { UtilsService } from "../utils/utils.service";
 @Controller("user")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly utilsService: UtilsService,
+  ) {}
 
   @Post("/")
   async createUser(@Body() userDTO: UserDto): Promise<StandardResponse> {
     const user = await this.userService.createUser(userDTO);
-    return new StandardResponse({ user: user }, "Usuário criado com sucesso!");
+    return this.utilsService.response(
+      { user: user },
+      "Usuário criado com sucesso!",
+    );
   }
 
   @Get("/:id")
   async findUserById(@Param("id") id: number): Promise<StandardResponse> {
     const user = await this.userService.findOneById(id);
 
-    return new StandardResponse({ user }, "Usuário encontrado com sucesso!");
+    return this.utilsService.response(
+      { user },
+      "Usuário encontrado com sucesso!",
+    );
   }
 
   @Delete("/:id")
   async deleteUser(@Param("id") id: number): Promise<StandardResponse> {
     const user = await this.userService.deleteUser(id);
-    return new StandardResponse({ user }, "Usuário deletado com sucesso!");
+    return this.utilsService.response(
+      { user },
+      "Usuário deletado com sucesso!",
+    );
   }
 
   @Patch("/:id")
@@ -39,6 +52,9 @@ export class UserController {
     @Body() partialUser: Partial<UserDto>,
   ): Promise<StandardResponse> {
     const result = await this.userService.updateUser(id, partialUser);
-    return new StandardResponse(result, "Usuário atualizado com sucesso!");
+    return this.utilsService.response(
+      result,
+      "Usuário atualizado com sucesso!",
+    );
   }
 }
